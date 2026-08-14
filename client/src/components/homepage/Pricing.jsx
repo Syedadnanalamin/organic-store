@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Check, ShoppingBag, CheckCircle, Gift, Truck } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -12,10 +13,9 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Pricing() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPack, setSelectedPack] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedData, setSubmittedData] = useState(null);
 
   const {
     register,
@@ -107,17 +107,18 @@ export default function Pricing() {
       deliveryArea: "inside",
     });
     setIsOpen(true);
-    setIsSubmitted(false);
   };
 
   const onSubmit = (data) => {
-    setSubmittedData({
-      ...data,
-      totalPrice,
-      deliveryCharge,
-      productPrice,
-    });
-    setIsSubmitted(true);
+    setIsOpen(false);
+    router.push(
+      `/order-complete?name=${encodeURIComponent(data.name)}` +
+      `&phone=${encodeURIComponent(data.phone)}` +
+      `&package=${encodeURIComponent(selectedPack.name)}` +
+      `&quantity=${quantity}` +
+      `&delivery=${deliveryCharge}` +
+      `&total=${totalPrice}`
+    );
   };
 
   return (
@@ -236,8 +237,7 @@ export default function Pricing() {
 
           {/* Dialog Body */}
           <div className="p-6 overflow-y-auto flex-1">
-            {!isSubmitted ? (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 
                 {/* Selected Package Banner */}
                 {selectedPack && (
@@ -404,59 +404,7 @@ export default function Pricing() {
                 </button>
 
               </form>
-            ) : (
-              /* Order Success View */
-              <div className="text-center py-6 px-4 space-y-6 animate-in fade-in duration-300">
-                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
-                  <CheckCircle className="w-12 h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-extrabold text-slate-900">অর্ডারটি সফল হয়েছে!</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed max-w-sm mx-auto">
-                    ধন্যবাদ <strong>{submittedData?.name}</strong>, আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। 
-                    আমাদের একজন প্রতিনিধি আগামী ২৪ ঘণ্টার মধ্যে আপনার প্রদত্ত নম্বরে (<strong>{submittedData?.phone}</strong>) কল করে অর্ডারটি কনফার্ম করবেন।
-                  </p>
-                </div>
-
-                {/* Live Order Details Breakdown in Success Panel */}
-                <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl max-w-sm mx-auto text-left text-xs space-y-2 text-slate-600">
-                  <p className="font-bold text-slate-800 text-sm text-center border-b border-slate-200 pb-1.5 mb-2">অর্ডার ডিটেইলস</p>
-                  <div className="flex justify-between">
-                    <span>প্যাকেজ:</span>
-                    <span className="font-semibold text-slate-800">{selectedPack?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>পরিমাণ:</span>
-                    <span className="font-semibold text-slate-800">{submittedData?.quantity} পিস</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>ডেলিভারি এলাকা:</span>
-                    <span className="font-semibold text-slate-800">
-                      {submittedData?.deliveryArea === "inside" ? "ঢাকার ভেতরে" : "ঢাকার বাইরে"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>ডেলিভারি চার্জ:</span>
-                    <span className="font-semibold text-slate-800">
-                      ৳{submittedData?.deliveryCharge}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-t border-slate-200 pt-2 font-bold text-slate-800 text-sm">
-                    <span>সর্বমোট পরিশোধযোগ্য মূল্য:</span>
-                    <span className="text-amber-600">৳{submittedData?.totalPrice}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="mt-6 border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-bold px-6 py-2.5 rounded-full text-sm transition-all cursor-pointer"
-                >
-                  বন্ধ করুন
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
         </DialogContent>
       </Dialog>
     </section>
