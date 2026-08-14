@@ -1,9 +1,10 @@
 const express = require('express');
 const appRouter = require('./routers/appRouter');
+const ordersRouter = require('./routers/ordersRouter');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const dotenv = require('dotenv');
-const { connectDB } = require('./db');
+const { connectDB, client } = require('./db');
 const cors = require('cors');
 dotenv.config();
 
@@ -14,9 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // connect to database
 connectDB();
+const db = client.db("organic");
+const orders = db.collection("orders");
 
 // routers
 app.use('/', appRouter);
+
+app.use("/api/orders", ordersRouter);
 
 
 // Start listening for connections

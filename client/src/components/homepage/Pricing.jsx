@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, ShoppingBag, CheckCircle, Gift, Truck } from "lucide-react";
+import { Check, ShoppingBag, CheckCircle, Gift, Truck, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { postOrders } from "@/lib/api/postOrders";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,7 @@ export default function Pricing() {
     handleSubmit,
     watch,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       name: "",
@@ -109,16 +110,40 @@ export default function Pricing() {
     setIsOpen(true);
   };
 
-  const onSubmit = (data) => {
-    setIsOpen(false);
-    router.push(
-      `/order-complete?name=${encodeURIComponent(data.name)}` +
-      `&phone=${encodeURIComponent(data.phone)}` +
-      `&package=${encodeURIComponent(selectedPack.name)}` +
-      `&quantity=${quantity}` +
-      `&delivery=${deliveryCharge}` +
-      `&total=${totalPrice}`
-    );
+  const onSubmit = async (data) => {
+    const orderData = {
+      name: data.name,
+      phone: data.phone,
+      address: data.address,
+      quantity: quantity,
+      deliveryArea: deliveryArea,
+      deliveryCharge: deliveryCharge,
+      productPrice: productPrice,
+      totalPrice: totalPrice,
+      packageName: selectedPack?.name,
+      packageId: selectedPack?.id,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await postOrders(orderData);
+      if (response) {
+        setIsOpen(false);
+        router.push(
+          `/order-complete?name=${encodeURIComponent(data.name)}` +
+          `&phone=${encodeURIComponent(data.phone)}` +
+          `&package=${encodeURIComponent(selectedPack.name)}` +
+          `&quantity=${quantity}` +
+          `&delivery=${deliveryCharge}` +
+          `&total=${totalPrice}`
+        );
+      } else {
+        alert("অর্ডার করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+      }
+    } catch (error) {
+      console.error("Order submission failed:", error);
+      alert("অর্ডার করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
+    }
   };
 
   return (
@@ -397,10 +422,15 @@ export default function Pricing() {
                 {/* Order Confirm Button */}
                 <button
                   type="submit"
-                  className="w-full py-4 px-6 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2 transform active:scale-98 cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2 transform active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CheckCircle className="w-5 h-5" />
-                  <span>অর্ডার কনফার্ম করুন (৳{totalPrice})</span>
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <CheckCircle className="w-5 h-5" />
+                  )}
+                  <span>{isSubmitting ? "অর্ডার প্রসেস হচ্ছে..." : `অর্ডার কনফার্ম করুন (৳${totalPrice})`}</span>
                 </button>
 
               </form>
