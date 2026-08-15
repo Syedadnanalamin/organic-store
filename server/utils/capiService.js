@@ -110,7 +110,23 @@ const sendCapiEvent = async ({
     if (result.error) {
       console.error(`[FB CAPI] Error sending "${eventName}":`, result.error);
     } else {
-      console.log(`[FB CAPI] Success: Sent "${eventName}" event. Deduplication ID: ${eventId}`);
+      console.log(`[FB CAPI] Success: Sent "${eventName}" event.`);
+      console.log(`- Deduplication Event ID: ${eventId}`);
+      console.log(`- Event Time (Unix Seconds): ${payload.data[0].event_time}`);
+      console.log(`- Action Source: ${payload.data[0].action_source}`);
+      console.log(`- Event Source URL: ${payload.data[0].event_source_url}`);
+      console.log(`- User Parameters Sent:`, {
+        ip: fbUserData.client_ip_address ? 'Yes' : 'No',
+        ua: fbUserData.client_user_agent ? 'Yes' : 'No',
+        fbp: fbUserData.fbp ? 'Yes (' + fbUserData.fbp + ')' : 'No',
+        fbc: fbUserData.fbc ? 'Yes (' + fbUserData.fbc + ')' : 'No',
+        phone_hashed: hashedPh ? 'Yes' : 'No',
+        first_name_hashed: hashedFn ? 'Yes' : 'No',
+        last_name_hashed: hashedLn ? 'Yes' : 'No'
+      });
+      if (testEventCode) {
+        console.log(`- Test Event Code: ${testEventCode}`);
+      }
     }
     return result;
   } catch (error) {
