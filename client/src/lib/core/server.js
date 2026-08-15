@@ -1,7 +1,12 @@
 export const serverPost = async (path, data) => {
-    const baseurl = process.env.NEXT_PUBLIC_SERVER_URL;
+    let baseurl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+    if (baseurl.endsWith('/')) {
+        baseurl = baseurl.slice(0, -1);
+    }
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    
     try {
-        const res = await fetch(`${baseurl}${path}`, {
+        const res = await fetch(`${baseurl}${cleanPath}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

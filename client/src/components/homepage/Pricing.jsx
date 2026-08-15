@@ -130,7 +130,12 @@ export default function Pricing() {
     const fbp = getCookie("_fbp");
     const fbc = getCookie("_fbc");
     
-    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000'}/api/pixel-event`, {
+    let serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
+    if (serverUrl.endsWith('/')) {
+      serverUrl = serverUrl.slice(0, -1);
+    }
+    
+    fetch(`${serverUrl}/api/pixel-event`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
