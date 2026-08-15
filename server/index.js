@@ -29,3 +29,5 @@ app.use("/api/pixel-event", require('./routers/pixelRouter'));
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;
