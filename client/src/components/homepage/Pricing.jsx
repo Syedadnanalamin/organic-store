@@ -19,6 +19,11 @@ export default function Pricing() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPack, setSelectedPack] = useState(null);
 
+  React.useEffect(() => {
+    console.log("DEBUG - NEXT_PUBLIC_SERVER_URL:", process.env.NEXT_PUBLIC_SERVER_URL);
+    console.log("DEBUG - NEXT_PUBLIC_FACEBOOK_PIXEL_ID:", process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID);
+  }, []);
+
   const {
     register,
     handleSubmit,
