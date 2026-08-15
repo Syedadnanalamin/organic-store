@@ -22,6 +22,7 @@ const orders = db.collection("orders");
 app.use('/', appRouter);
 
 app.use("/api/orders", ordersRouter);
+app.use("/api/pixel-event", require('./routers/pixelRouter'));
 
 
 // Start listening for connections

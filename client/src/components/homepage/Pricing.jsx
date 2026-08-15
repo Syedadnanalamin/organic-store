@@ -5,6 +5,7 @@ import { Check, ShoppingBag, CheckCircle, Gift, Truck, Loader2 } from "lucide-re
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { postOrders } from "@/lib/api/postOrders";
+import { generateEventId, fbEvent, getCookie } from "@/lib/pixel";
 import {
   Dialog,
   DialogContent,
@@ -108,9 +109,50 @@ export default function Pricing() {
       deliveryArea: "inside",
     });
     setIsOpen(true);
+
+    // Generate unique Event ID for InitiateCheckout
+    const eventId = generateEventId("init");
+    
+    // Client-side Facebook Pixel InitiateCheckout
+    fbEvent("InitiateCheckout", {
+      content_name: pack.name,
+      content_category: "Food",
+      value: pack.offerPrice,
+      currency: "BDT",
+    }, eventId);
+
+    // Server-side CAPI proxy for InitiateCheckout
+    const fbp = getCookie("_fbp");
+    const fbc = getCookie("_fbc");
+    
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000'}/api/pixel-event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        event_name: "InitiateCheckout",
+        event_id: eventId,
+        user_data: {
+          fbp,
+          fbc,
+          client_user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        },
+        custom_data: {
+          content_name: pack.name,
+          value: pack.offerPrice,
+          currency: "BDT",
+        },
+        event_source_url: typeof window !== "undefined" ? window.location.href : "",
+      }),
+    }).catch((err) => console.error("CAPI InitiateCheckout proxy error:", err));
   };
 
   const onSubmit = async (data) => {
+    const purchaseEventId = generateEventId("pur");
+    const fbp = getCookie("_fbp");
+    const fbc = getCookie("_fbc");
+
     const orderData = {
       name: data.name,
       phone: data.phone,
@@ -123,12 +165,28 @@ export default function Pricing() {
       packageName: selectedPack?.name,
       packageId: selectedPack?.id,
       createdAt: new Date().toISOString(),
+      // Tracking parameters for server-side CAPI matching
+      eventId: purchaseEventId,
+      fbp,
+      fbc,
+      clientUserAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
     };
 
     try {
       const response = await postOrders(orderData);
       if (response) {
         setIsOpen(false);
+
+        // Client-side Facebook Pixel Purchase
+        fbEvent("Purchase", {
+          content_name: selectedPack?.name,
+          content_type: "product",
+          content_ids: [selectedPack?.id || "ghee"],
+          value: totalPrice,
+          currency: "BDT",
+          num_items: quantity,
+        }, purchaseEventId);
+
         router.push(
           `/order-complete?name=${encodeURIComponent(data.name)}` +
           `&phone=${encodeURIComponent(data.phone)}` +
