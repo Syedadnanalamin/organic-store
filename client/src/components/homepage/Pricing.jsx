@@ -117,7 +117,7 @@ export default function Pricing() {
 
     // Generate unique Event ID for InitiateCheckout
     const eventId = generateEventId("init");
-    
+
     // Client-side Facebook Pixel InitiateCheckout
     fbEvent("InitiateCheckout", {
       content_name: pack.name,
@@ -129,13 +129,13 @@ export default function Pricing() {
     // Server-side CAPI proxy for InitiateCheckout
     const fbp = getCookie("_fbp");
     const fbc = getCookie("_fbc");
-    
+
     let serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
     if (serverUrl.endsWith('/')) {
       serverUrl = serverUrl.slice(0, -1);
     }
-    
-    fetch(`${serverUrl}/api/events`, {
+
+    fetch(`${serverUrl}/api/pixel-event`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -217,7 +217,7 @@ export default function Pricing() {
   return (
     <section id="pricing" className="py-20 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-sm font-bold text-amber-600 uppercase tracking-widest mb-3">
@@ -237,19 +237,17 @@ export default function Pricing() {
           {packages.map((pack) => (
             <div
               key={pack.id}
-              className={`rounded-3xl p-8 flex flex-col justify-between relative transition-all duration-300 ${
-                pack.popular
+              className={`rounded-3xl p-8 flex flex-col justify-between relative transition-all duration-300 ${pack.popular
                   ? "bg-slate-900 text-white shadow-xl shadow-slate-900/20 scale-102 border-2 border-amber-500 lg:-translate-y-2"
                   : "bg-white text-slate-800 shadow-md border border-slate-100 hover:shadow-lg"
-              }`}
+                }`}
             >
               {/* Badge */}
               <span
-                className={`absolute top-5 right-5 text-xs font-bold px-3 py-1 rounded-full ${
-                  pack.popular
+                className={`absolute top-5 right-5 text-xs font-bold px-3 py-1 rounded-full ${pack.popular
                     ? "bg-amber-500 text-slate-950"
                     : "bg-amber-100 text-amber-800"
-                }`}
+                  }`}
               >
                 {pack.badge}
               </span>
@@ -281,9 +279,8 @@ export default function Pricing() {
               <ul className="space-y-4 mb-8">
                 {pack.features.map((feature, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
-                    <span className={`p-0.5 rounded-full shrink-0 mt-0.5 ${
-                      pack.popular ? "bg-amber-500/20 text-amber-400" : "bg-emerald-100 text-emerald-700"
-                    }`}>
+                    <span className={`p-0.5 rounded-full shrink-0 mt-0.5 ${pack.popular ? "bg-amber-500/20 text-amber-400" : "bg-emerald-100 text-emerald-700"
+                      }`}>
                       <Check className="w-3.5 h-3.5" />
                     </span>
                     <span className={pack.popular ? "text-slate-300" : "text-slate-600"}>
@@ -296,11 +293,10 @@ export default function Pricing() {
               {/* CTA Button */}
               <button
                 onClick={() => handleOpenOrder(pack)}
-                className={`w-full py-4 px-6 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-98 cursor-pointer ${
-                  pack.popular
+                className={`w-full py-4 px-6 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-98 cursor-pointer ${pack.popular
                     ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-lg shadow-amber-500/20 hover:from-amber-400 hover:to-yellow-400"
                     : "bg-slate-100 hover:bg-amber-500 hover:text-slate-950 text-slate-800"
-                }`}
+                  }`}
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>অর্ডার করুন</span>
@@ -331,178 +327,173 @@ export default function Pricing() {
           {/* Dialog Body */}
           <div className="p-6 overflow-y-auto flex-1">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                
-                {/* Selected Package Banner */}
-                {selectedPack && (
-                  <div className="bg-amber-50 border border-amber-200/50 p-4 rounded-2xl flex justify-between items-center">
-                    <div>
-                      <p className="text-xs text-amber-800 font-semibold uppercase">নির্বাচিত প্যাকেজ</p>
-                      <h4 className="font-bold text-slate-800 text-sm mt-0.5">{selectedPack.name}</h4>
-                    </div>
-                    <span className="text-xl font-bold text-amber-700">৳{selectedPack.offerPrice}</span>
+
+              {/* Selected Package Banner */}
+              {selectedPack && (
+                <div className="bg-amber-50 border border-amber-200/50 p-4 rounded-2xl flex justify-between items-center">
+                  <div>
+                    <p className="text-xs text-amber-800 font-semibold uppercase">নির্বাচিত প্যাকেজ</p>
+                    <h4 className="font-bold text-slate-800 text-sm mt-0.5">{selectedPack.name}</h4>
                   </div>
+                  <span className="text-xl font-bold text-amber-700">৳{selectedPack.offerPrice}</span>
+                </div>
+              )}
+
+              {/* Name Input */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  আপনার নাম <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="যেমন: মোঃ জাহিদ হাসান"
+                  {...register("name", { required: "আপনার নাম লিখুন" })}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none text-slate-800 text-sm transition-all ${errors.name ? "border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    }`}
+                />
+                {errors.name && (
+                  <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
                 )}
+              </div>
 
-                {/* Name Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    আপনার নাম <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="যেমন: মোঃ জাহিদ হাসান"
-                    {...register("name", { required: "আপনার নাম লিখুন" })}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none text-slate-800 text-sm transition-all ${
-                      errors.name ? "border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+              {/* Phone Input */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  মোবাইল নম্বর <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="যেমন: ০১৭XXXXXXXX"
+                  {...register("phone", {
+                    required: "আপনার মোবাইল নম্বর লিখুন",
+                    pattern: {
+                      value: /^(?:\+88|88)?(01[3-9]\d{8})$/,
+                      message: "১১ ডিজিটের সঠিক মোবাইল নম্বর লিখুন (যেমন: ০১৭১২৩৪৫৬৭৮)"
+                    }
+                  })}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none text-slate-800 text-sm transition-all ${errors.phone ? "border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                     }`}
-                  />
-                  {errors.name && (
-                    <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
-                  )}
-                </div>
+                />
+                {errors.phone && (
+                  <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
+                )}
+              </div>
 
-                {/* Phone Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    মোবাইল নম্বর <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="যেমন: ০১৭XXXXXXXX"
-                    {...register("phone", {
-                      required: "আপনার মোবাইল নম্বর লিখুন",
-                      pattern: {
-                        value: /^(?:\+88|88)?(01[3-9]\d{8})$/,
-                        message: "১১ ডিজিটের সঠিক মোবাইল নম্বর লিখুন (যেমন: ০১৭১২৩৪৫৬৭৮)"
-                      }
-                    })}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none text-slate-800 text-sm transition-all ${
-                      errors.phone ? "border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                    }`}
-                  />
-                  {errors.phone && (
-                    <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
-                  )}
-                </div>
+              {/* Quantity Select */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  পরিমাণ (পিস)
+                </label>
+                <select
+                  {...register("quantity")}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-slate-800 text-sm transition-all bg-white"
+                >
+                  <option value="1">১ পিস</option>
+                  <option value="2">২ পিস</option>
+                  <option value="3">৩ পিস</option>
+                  <option value="4">৪ পিস</option>
+                  <option value="5">৫ পিস (পারিবারিক অফার)</option>
+                </select>
+              </div>
 
-                {/* Quantity Select */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    পরিমাণ (পিস)
-                  </label>
-                  <select
-                    {...register("quantity")}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-slate-800 text-sm transition-all bg-white"
-                  >
-                    <option value="1">১ পিস</option>
-                    <option value="2">২ পিস</option>
-                    <option value="3">৩ পিস</option>
-                    <option value="4">৪ পিস</option>
-                    <option value="5">৫ পিস (পারিবারিক অফার)</option>
-                  </select>
-                </div>
-
-                {/* Delivery Area Selection */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    ডেলিভারি এলাকা <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <label className={`flex flex-col items-center justify-center text-center p-3 rounded-xl border cursor-pointer transition-all ${
-                      deliveryArea === "inside"
-                        ? "border-amber-500 bg-amber-50/20 text-amber-900 font-bold"
-                        : "border-slate-200 hover:bg-slate-50 text-slate-700"
+              {/* Delivery Area Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  ডেলিভারি এলাকা <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <label className={`flex flex-col items-center justify-center text-center p-3 rounded-xl border cursor-pointer transition-all ${deliveryArea === "inside"
+                      ? "border-amber-500 bg-amber-50/20 text-amber-900 font-bold"
+                      : "border-slate-200 hover:bg-slate-50 text-slate-700"
                     }`}>
-                      <span className="text-sm">ঢাকার ভেতরে</span>
-                      <span className="text-xs text-amber-700 font-bold mt-1">
-                        ৳৬০
-                      </span>
-                      <input
-                        type="radio"
-                        value="inside"
-                        {...register("deliveryArea")}
-                        className="sr-only"
-                      />
-                    </label>
-                    <label className={`flex flex-col items-center justify-center text-center p-3 rounded-xl border cursor-pointer transition-all ${
-                      deliveryArea === "outside"
-                        ? "border-amber-500 bg-amber-50/20 text-amber-900 font-bold"
-                        : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                    }`}>
-                      <span className="text-sm">ঢাকার বাইরে</span>
-                      <span className="text-xs text-amber-700 font-bold mt-1">
-                        ৳১১০
-                      </span>
-                      <input
-                        type="radio"
-                        value="outside"
-                        {...register("deliveryArea")}
-                        className="sr-only"
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                {/* Address Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    rows="3"
-                    placeholder="গ্রাম/রোড নম্বর, ইউনিয়ন/পৌরসভা, থানা, জেলা উল্লেখ করুন"
-                    {...register("address", { required: "আপনার সম্পূর্ণ ঠিকানা লিখুন" })}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none text-slate-800 text-sm transition-all resize-none ${
-                      errors.address ? "border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                    }`}
-                  />
-                  {errors.address && (
-                    <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
-                  )}
-                </div>
-
-                {/* Live Order Pricing Breakdown */}
-                <div className="bg-amber-50/60 border border-amber-200/50 p-4 rounded-2xl space-y-2">
-                  <div className="flex justify-between text-xs text-slate-600">
-                    <span>পণ্য মূল্য ({quantity} পিস):</span>
-                    <span className="font-semibold text-slate-800">৳{productPrice}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-slate-600">
-                    <span>ডেলিভারি চার্জ ({deliveryArea === "inside" ? "ঢাকার ভেতরে" : "ঢাকার বাইরে"}):</span>
-                    <span className="font-semibold text-slate-800">
-                      ৳{deliveryCharge}
+                    <span className="text-sm">ঢাকার ভেতরে</span>
+                    <span className="text-xs text-amber-700 font-bold mt-1">
+                      ৳৬০
                     </span>
-                  </div>
-                  <div className="flex justify-between text-sm font-bold text-slate-800 pt-2 border-t border-amber-200/60">
-                    <span>সর্বমোট মূল্য:</span>
-                    <span className="text-amber-700 text-lg">৳{totalPrice}</span>
-                  </div>
+                    <input
+                      type="radio"
+                      value="inside"
+                      {...register("deliveryArea")}
+                      className="sr-only"
+                    />
+                  </label>
+                  <label className={`flex flex-col items-center justify-center text-center p-3 rounded-xl border cursor-pointer transition-all ${deliveryArea === "outside"
+                      ? "border-amber-500 bg-amber-50/20 text-amber-900 font-bold"
+                      : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                    }`}>
+                    <span className="text-sm">ঢাকার বাইরে</span>
+                    <span className="text-xs text-amber-700 font-bold mt-1">
+                      ৳১১০
+                    </span>
+                    <input
+                      type="radio"
+                      value="outside"
+                      {...register("deliveryArea")}
+                      className="sr-only"
+                    />
+                  </label>
                 </div>
+              </div>
 
-                {/* COD Info */}
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-2.5 items-center">
-                  <span className="text-amber-500">🚚</span>
-                  <span className="text-xs text-slate-600 leading-normal">
-                    <strong>ক্যাশ অন ডেলিভারি:</strong> কোনো অগ্রিম পেমেন্ট করতে হবে না। পণ্য হাতে পেয়ে চেক করে ডেলিভারিম্যানকে পেমেন্ট করবেন।
+              {/* Address Input */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows="3"
+                  placeholder="গ্রাম/রোড নম্বর, ইউনিয়ন/পৌরসভা, থানা, জেলা উল্লেখ করুন"
+                  {...register("address", { required: "আপনার সম্পূর্ণ ঠিকানা লিখুন" })}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none text-slate-800 text-sm transition-all resize-none ${errors.address ? "border-red-500 focus:ring-red-500/20" : "border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                    }`}
+                />
+                {errors.address && (
+                  <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
+                )}
+              </div>
+
+              {/* Live Order Pricing Breakdown */}
+              <div className="bg-amber-50/60 border border-amber-200/50 p-4 rounded-2xl space-y-2">
+                <div className="flex justify-between text-xs text-slate-600">
+                  <span>পণ্য মূল্য ({quantity} পিস):</span>
+                  <span className="font-semibold text-slate-800">৳{productPrice}</span>
+                </div>
+                <div className="flex justify-between text-xs text-slate-600">
+                  <span>ডেলিভারি চার্জ ({deliveryArea === "inside" ? "ঢাকার ভেতরে" : "ঢাকার বাইরে"}):</span>
+                  <span className="font-semibold text-slate-800">
+                    ৳{deliveryCharge}
                   </span>
                 </div>
+                <div className="flex justify-between text-sm font-bold text-slate-800 pt-2 border-t border-amber-200/60">
+                  <span>সর্বমোট মূল্য:</span>
+                  <span className="text-amber-700 text-lg">৳{totalPrice}</span>
+                </div>
+              </div>
 
-                {/* Order Confirm Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 px-6 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2 transform active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-5 h-5" />
-                  )}
-                  <span>{isSubmitting ? "অর্ডার প্রসেস হচ্ছে..." : `অর্ডার কনফার্ম করুন (৳${totalPrice})`}</span>
-                </button>
+              {/* COD Info */}
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-2.5 items-center">
+                <span className="text-amber-500">🚚</span>
+                <span className="text-xs text-slate-600 leading-normal">
+                  <strong>ক্যাশ অন ডেলিভারি:</strong> কোনো অগ্রিম পেমেন্ট করতে হবে না। পণ্য হাতে পেয়ে চেক করে ডেলিভারিম্যানকে পেমেন্ট করবেন।
+                </span>
+              </div>
 
-              </form>
-            </div>
+              {/* Order Confirm Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 px-6 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-bold rounded-2xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2 transform active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-5 h-5" />
+                )}
+                <span>{isSubmitting ? "অর্ডার প্রসেস হচ্ছে..." : `অর্ডার কনফার্ম করুন (৳${totalPrice})`}</span>
+              </button>
+
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
     </section>

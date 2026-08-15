@@ -1,15 +1,13 @@
-const { connectDB } = require('../db');
+const { client } = require('../db');
 const { sendCapiEvent } = require('../utils/capiService');
 
 const createOrder = async (req, res) => {
     try {
         const data = req.body;
-        
-        // Retrieve dynamic cached database connection
-        const db = await connectDB();
+        const db = client.db("organic");
         const orders = db.collection("orders");
         const result = await orders.insertOne(data);
-        
+
         // Return response to user immediately
         res.status(200).json(data);
 
