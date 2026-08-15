@@ -135,7 +135,7 @@ export default function Pricing() {
       serverUrl = serverUrl.slice(0, -1);
     }
     
-    fetch(`${serverUrl}/api/pixel-event`, {
+    fetch(`${serverUrl}/api/events`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

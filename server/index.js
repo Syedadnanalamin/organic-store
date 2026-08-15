@@ -14,15 +14,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // connect to database
-connectDB();
-const db = client.db("organic");
-const orders = db.collection("orders");
+connectDB().catch(err => console.error("Database pre-connection failed:", err));
 
 // routers
 app.use('/', appRouter);
 
 app.use("/api/orders", ordersRouter);
-app.use("/api/pixel-event", require('./routers/pixelRouter'));
+app.use("/api/events", require('./routers/pixelRouter'));
 
 
 // Start listening for connections
